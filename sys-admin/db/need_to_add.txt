@@ -1,0 +1,10 @@
+database alterations required for system not yet in php scripts
+	ALTER TABLE team ADD soccer_group int
+	ALTER TABLE mentor_team ADD pmt_amount float
+	ALTER TABLE user ADD assign_proxy int
+	ALTER TABLE user ADD last_login datetime
+	ALTER TABLE user ADD member_type VARCHAR
+	ALTER TABLE user ADD member_begin DATE
+	ALTER TABLE user ADD member_end DATE
+	ALTER TABLE user ADD mobile_num VARCHAR(20)
+	ALTER TABLE user ADD dob DATE
