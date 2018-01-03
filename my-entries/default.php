@@ -8,8 +8,8 @@
 
   WriteConnectUserDetails($con);
   CEWritePageHeader(C_SITE_TITLE, 'Robocup Junior Australia | Online Entry System');
-  echo '<h1>Robocup Junior Australia | Online Entry System</h1>';
-  WriteMentorCompetitionIndex($con);
-  CEWritePageFooter();
+  echo '<h1>Robocup Juior Australia | Online Entry System</h1>';
   
+  WriteMentorCompetitionIndex($con);
+  CEWritePageFooter();  
 ?>
