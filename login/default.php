@@ -47,7 +47,7 @@
   function WriteNewUser($email, $message_email, 
     $password, $message_password, $password_again, $message_password_again, 
     $first_name, $message_first_name, $last_name, $message_last_name,      
-    $organisation, $message_organisation)
+    $organisation, $message_organisation, $mobile_num, $message_mobile_num)
   {
 
     echo '<form name="new_user" action="/login/default.php" method="post">';    
@@ -83,8 +83,14 @@
       echo '<p><span class="field_message">' . $message_organisation . '</span>';
       echo '
          <span class="field_label">Organisation:</span>
-         <input type="text" name="nu_organisation" id="nu_organisation" maxlength="60" value="' . $organisation . '" class="textbox"></p>
+         <input type="text" name="nu_organisation" id="nu_organisation" maxlength="60" value="' . $organisation . '" class="textbox"></p>';
+	  
+	  echo '<p><span class="field_message">' . $message_mobile_num . '</span>';
+      echo '
+         <span class="field_label">Mobile Number:</span>
+         <input type="text" name="nu_mobile_num" id="nu_mobile_num" maxlength="20" value="' . $mobile_num . '" class="textbox"></p>
       <p></p>
+	  <p>By creating an account, you agree to sign up to regional, state and national email newsletters that are relevant, to me, and to share my name and email address with RoboCup Junior Australia regional, state and national supporters and sponsors. You can choose to opt out of these on the page displayed following account creation.</p> 
       <p><input type="submit" value="Create my account"></p> 
       </fieldset>                                   
       </form>';
@@ -109,14 +115,14 @@
                      $nu_password, $nu_message_password, 
                      $nu_password_again, $nu_message_password_again, 
                      $nu_first_name, $nu_message_first_name, $nu_last_name, $nu_message_last_name,      
-                     $nu_organisation, $nu_message_organisation, $pr_email, $pr_message_password)
+                     $nu_organisation, $nu_message_organisation, $nu_mobile_num, $nu_mobile_num_message, $pr_email, $pr_message_password)
   {
     WritePageHeader();
     WriteLogin($lo_email, $lo_message_email);
                 
     WriteNewUser($nu_email, $nu_message_email, $nu_password, $nu_message_password, $nu_password_again, $nu_message_password_again, 
                  $nu_first_name, $nu_message_first_name, $nu_last_name, $nu_message_last_name,      
-                 $nu_organisation, $nu_message_organisation);
+                 $nu_organisation, $nu_message_organisation, $nu_mobile_num, $nu_mobile_num_message);
                  
     WritePasswordReset($pr_email, $pr_message_password);
     writePageFooter();
@@ -150,7 +156,8 @@
              $password_hash_again, &$message_password_again, 
              $first_name,          &$message_first_name,   
              $last_name,           &$message_last_name,      
-             $organisation,        &$message_organisation)
+             $organisation,        &$message_organisation,
+	         $mobile_num, 		   &$message_mobile_num)
   {
     $message_email          = ''; 
     $message_password       = '';
@@ -158,13 +165,16 @@
     $message_first_name     = ''; 
     $message_last_name      = '';
     $message_organisation   = '';
+	$message_mobile_num     = '';
     
     CECheckNotNull($email,          $message_email,          'Please enter an email address.');
     CECheckNotNull($password_hash_again, $message_password_again, 'Please re-enter the password.');
     CECheckNotNull($first_name,     $message_first_name,     'Please enter your first name.');
     CECheckNotNull($last_name,      $message_last_name,     'Please enter your last name.');
     CECheckNotNull($organisation,   $message_organisation, 'Please enter your organisation.');
-    
+    CECheckNotNull($mobile_num,   $message_mobile_num, 'Please enter your mobile number.');
+  
+	  
     if (!filter_var($email, FILTER_VALIDATE_EMAIL))
 	{
       $message_email = 'This dose not look like a valid email address.'; 
@@ -191,7 +201,8 @@
            empty($message_password_again) and 
            empty($$message_first_name) and   
            empty($message_last_name) and      
-           empty($message_organisation);    
+           empty($message_organisation) and 
+		   empty($message_mobile_num);    
   }
 
   function LogonUser($con, $email, $password_hash, &$user_id, &$message)
@@ -224,19 +235,22 @@
              $password,
              $first_name,
              $last_name,
-             $organisation)
+             $organisation, 
+			 $mobile_num)
   {
+    $passwordHash = sha1($password);  
     $query = $con->prepare(
       'insert into user ' .
-      '(uid, email, password_hash, first_name, last_name, primary_org, access_level, rcja_member, mailing_list, share_with_sponsor) ' .
+      '(uid, email, password_hash, first_name, last_name, primary_org, mobile_num, access_level, rcja_member, mailing_list, share_with_sponsor) ' .
       'values ' .
-      '(:uid, :email, :password_hash, :first_name, :last_name, :primary_org, "' . C_MENTOR . '", 0, 0, 0)');      
+      '(:uid, :email, :password_hash, :first_name, :last_name, :primary_org, :mobile_num, "' . C_MENTOR . '", 0, 1, 1)');      
     $query->bindParam(':uid',           $uid);
     $query->bindParam(':email',         $email);
-    $query->bindParam(':password_hash', sha1($password));
+    $query->bindParam(':password_hash', $passwordHash);
     $query->bindParam(':first_name',    $first_name);
     $query->bindParam(':last_name',     $last_name);
     $query->bindParam(':primary_org',   $organisation);
+	$query->bindParam(':mobile_num',   $mobile_num);
     $result = $query->execute();                 
   } 
   
@@ -269,7 +283,7 @@
 	
     if (empty($action))
     {
-      WriteHTML('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+      WriteHTML('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''); //wtf is this for?
     }
     else if ($action == 'LOGIN')
     {
@@ -284,7 +298,7 @@
        }
        else
        {
-         WriteHTML($email, $message, '', '', '', '', '', '', '', '', '', '', '', '', '', '');
+         WriteHTML($email, $message, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''); //comment as above...I've added two '' to both assuming it matches the field/message count
        }
     }
     else if ($action == 'NEW_USER')
@@ -295,13 +309,15 @@
        $nu_first_name          = postFieldDefault('nu_first_name');
        $nu_last_name           = postFieldDefault('nu_last_name');
        $nu_organisation        = postFieldDefault('nu_organisation');
+	   $nu_mobile_num          = postFieldDefault('nu_mobile_num');
        if (ValidateNewUser($con,
          $nu_email,               $nu_message_email,          
          $nu_password,            $nu_message_password,       
          $nu_password_again,      $nu_message_password_again, 
          $nu_first_name,          $nu_message_first_name,   
          $nu_last_name,           $nu_message_last_name,      
-         $nu_organisation,        $nu_message_organisation))
+         $nu_organisation,        $nu_message_organisation,
+		 $nu_mobile_num,          $nu_message_mobile_num))
        {
          ceNewUIDIfRequired($nu_uid_user);
          Save($con,
@@ -310,7 +326,8 @@
               $nu_password,       
               $nu_first_name,     
               $nu_last_name,      
-              $nu_organisation);
+              $nu_organisation,
+			  $nu_mobile_num);
          session_start();
 	     $_SESSION['uid_logged_on_user'] = $nu_uid_user;
          header('location: /');
@@ -321,7 +338,7 @@
          WriteHTML('', '', 
                    $nu_email, $nu_message_email, $nu_password, $nu_message_password, $nu_password_again, $nu_message_password_again, 
                    $nu_first_name, $nu_message_first_name, $nu_last_name, $nu_message_last_name,      
-                   $nu_organisation, $nu_message_organisation,
+                   $nu_organisation, $nu_message_organisation, $nu_mobile_num, $nu_message_mobile_num,
                    '', '');
        }
     }
@@ -335,7 +352,7 @@
         WritePageFooter();
       }
       else {
-         WriteHTML('', '', '', '', '', '', '', '', '', '', '', '', '', '', $pr_email, $pr_message_password);
+         WriteHTML('', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', $pr_email, $pr_message_password); //again, wtf?
       }
     }
     else
