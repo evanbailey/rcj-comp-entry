@@ -26,18 +26,18 @@
   
   if(isset($_GET['action'])):
 	if($_GET['action']=='revoke'):
-	  $stmt = $con->prepare('UPDATE user SET rcja_member=0, assign_proxy=0, member_type="", member_end=NOW() WHERE uid=:uid');
+	  $stmt = $con->prepare('UPDATE user SET rcja_member=0, assign_proxy=0, member_type=NULL, member_end=NOW(), member_begin=NULL WHERE uid=:uid');
 	  $stmt->bindParam(':uid', $_GET['uid']);
 	  $stmt->execute();
       redirect('default.php');
 
 	elseif($_GET['action']=='cleanup_a'):
-	  $sql = 'UPDATE user SET rcja_member=0, assign_proxy=0, member_type="", member_end = NOW() WHERE member_type = "Regular" AND assign_proxy=0 AND rcja_member=1';
+	  $sql = 'UPDATE user SET rcja_member=0, assign_proxy=0, member_type=NULL, member_end = NOW(), member_begin=NULL WHERE member_type = "Regular" AND assign_proxy=0 AND rcja_member=1';
 	  $con->query($sql);
 	  redirect('default.php');
 
     elseif($_GET['action']=='cleanup_b'):
-	  $sql = 'UPDATE user SET rcja_member=0, assign_proxy=0, member_type="", member_end = NOW() WHERE member_type = "Regular" AND rcja_member=1 AND last_login < DATE_SUB(NOW(), INTERVAL 2 YEAR)';
+	  $sql = 'UPDATE user SET rcja_member=0, assign_proxy=0, member_type=NULL, member_end = NOW(), member_begin=NULL WHERE member_type = "Regular" AND rcja_member=1 AND last_login < DATE_SUB(NOW(), INTERVAL 2 YEAR)';
 	  $con->query($sql);
 	  redirect('default.php');
 
