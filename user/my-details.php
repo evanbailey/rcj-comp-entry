@@ -80,6 +80,10 @@
     $user->mailing_list       = postFieldDefault('mailing_list');
     $user->share_with_sponsor = postFieldDefault('share_with_sponsor');
     $user->assign_proxy       = postFieldDefault('assign_proxy');
+	
+	if(!$user->rcja_member):
+	  $user->assign_proxy = FALSE;
+	endif;
 	 
     if (empty($action))
     {
@@ -90,6 +94,18 @@
     {
       if (validateUserUpdateSelf($con, $user))
       {
+		//get current membership status and adjust start/end dates/member type/proxy as neccessary
+		$qry = $con->query('SELECT rcja_member FROM user WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"');
+		$qry = $qry->fetchColumn();
+
+		if($qry != ceBoolToInt($user->rcja_member)):
+		  if(ceBoolToInt($user->rcja_member)==1):
+		  	$con->query('UPDATE user SET member_begin=NOW(), member_end=NULL, member_type = "Regular" WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"');
+		  else:
+		    $con->query('UPDATE user SET member_begin=NULL, member_end=NOW(), member_type="", assign_proxy=0 WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"');
+		  endif;
+		endif;
+		  
         Save($con, 'update user ' .
 		           'set email              = :email,       			' .
                    '    first_name         = :first_name,  			' . 
@@ -110,7 +126,6 @@
       }
       else
       {
-  
         WriteHTML($con, CE_UPDATE, $user);
       }    
     }
