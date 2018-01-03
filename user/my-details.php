@@ -103,7 +103,7 @@
                    '    state              = :state,      			' . 
                    '    rcja_member        = :rcja_member,      	' . 
                    '    mailing_list       = :mailing_list,     	' . 
-                   '    share_with_sponsor = :share_with_sponsor	' . 
+                   '    share_with_sponsor = :share_with_sponsor,	' . 
 			 	   '    assign_proxy	   = :assign_proxy      	' . 
 				   'where uid = :uid',
              $user);
