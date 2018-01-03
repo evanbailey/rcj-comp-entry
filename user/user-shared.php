@@ -31,8 +31,8 @@
   {
     $sql = $con->prepare('
       select 
-        email, first_name, last_name, primary_org, access_level,
-        adrs_line_1, adrs_line_2, suburb, postcode, state, rcja_member, mailing_list, share_with_sponsor
+        email, first_name, last_name, primary_org, access_level, mobile_num,
+        adrs_line_1, adrs_line_2, suburb, postcode, state, rcja_member, mailing_list, share_with_sponsor, assign_proxy
       from 
         user 
       where 
@@ -40,11 +40,12 @@
     $sql->bindParam(':uid', $user->uid);
     
     $sql->execute();
-    $row                     = $sql->fetch(PDO::FETCH_ASSOC);
+    $row                      =  $sql->fetch(PDO::FETCH_ASSOC);
     $user->email              =  $row['email'] ;
     $user->first_name         =  $row['first_name'] ;
     $user->last_name          =  $row['last_name'] ;
     $user->primary_org        =  $row['primary_org'] ;
+	$user->mobile_num		  =  $row['mobile_num'] ;
     $user->access_level       =  $row['access_level'] ;
     $user->adrs_line_1        =  $row['adrs_line_1'] ;
     $user->adrs_line_2        =  $row['adrs_line_2'] ;
@@ -54,6 +55,7 @@
     $user->rcja_member        =  ceIntToBool($row['rcja_member']) ;
     $user->mailing_list       =  ceIntToBool($row['mailing_list']) ;
     $user->share_with_sponsor =  ceIntToBool($row['share_with_sponsor']) ;
+ 	$user->assign_proxy   	  =  ceIntToBool($row['assign_proxy']) ;
   }  
   
   function validateUserAddress($user){
@@ -78,6 +80,7 @@
     $user->first_name_message    = '';
     $user->last_name_message     = '';
     $user->primary_org_message   = '';
+	$user->mobile_num_message    = '';
     $user->adrs_line_1_message   = '';
     $user->adrs_line_2_message   = '';
     $user->suburb_message        = '';
@@ -111,9 +114,19 @@
 
     if (empty($user->primary_org))
     {
-        $user->primary_org_message = 'Please enter your school or club name. If you are a private team, enter the word "Private".';
+        $user->primary_org_message = 'Please enter your school or club name. If you are a independant or private team, enter the word "Independant".';
     }
     
+    if (!ctype_digit($user->mobile_num))
+    {
+        $user->mobile_num_message = 'Seriously, do you call that a mobile number???';
+    } 
+	  
+	if (strlen($user->mobile_num) < 10 OR strlen($user->mobile_num) > 20 )
+    {
+        $user->mobile_num_message = 'Please enter your Mobile Number, 10 to 20 characters long';
+    } 
+	  
     if (!empty($user->adrs_line_1) and strlen($user->adrs_line_1) > 100)
     {
         $user->adrs_line_1_message = 'Address lines must be less than 100 characters.';
@@ -147,6 +160,7 @@
       empty($user->email_message) and 
       empty($user->first_name_message) and 
       empty($user->last_name_message) and 
+	  empty($user->mobile_num_message) and 
       empty($user->primary_org_message) and 
       empty($user->adrs_line_1_message) and 
       empty($user->adrs_line_2_message) and 
@@ -184,7 +198,7 @@
             'QLD' => 'QLD', 'SA' => 'SA',
             'TAS' => 'TAS', 'VIC' => 'VIC',
             'WA' => 'WA'), $user->state_message);
-    CEWriteFormFieldText('postcode',    'Post code',      $user->postcode,      4, $user->postcode_message);
+    CEWriteFormFieldText('postcode',    'Postcode',      $user->postcode,      4, $user->postcode_message);
   } 
 
   function getMessage($messageID){
@@ -201,12 +215,11 @@
   
   function writeHTMLRCJAMembership($user){
     echo '<br><fieldset><legend>Your Robocup Junior Australia Membership</legend>';
+	echo '<p>Membership of RoboCup Junior Australia allows to you join committees, be elected to an electable position at an AGM and vote at an AGM (or assign your vote to your State/Terriroties proxy).</p>';
+    echo '<p>Membership is free and open to anybody aged 18 or over who mentors teams or volunteers for RCJA.</p>';
+	echo '<p>You may chose to assign your vote at an AGM to your State/Territory representative, as chosen by your State/Terriroty Committee. If you do not assign your vote to proxy, memberships are valid until the conclusion of the next AGM. If you assign your proxy, memberships are valid for two years since you last logged into this system. Membership for Committee Members at any level are valid indefinitly.</p>';
     CEWriteFormFieldCheckbox('rcja_member', 'Do you want to be a RCJA Member?', $user->rcja_member);
-    echo '<small><a href="javascript:alert(' . getMessage('rcja_member') . ')">Tell me more about this...</a></small>';
-    CEWriteFormFieldCheckbox('mailing_list', 'Do you want to be added to our mailing list?', $user->mailing_list);
-    echo '<small><a href="javascript:alert(' . getMessage('mailing_list') . ')">Tell me more about this...</a></small>';
-    CEWriteFormFieldCheckbox('share_with_sponsor', 'Can we share your details with our sponsor?', $user->share_with_sponsor);
-    echo '<small><a href="javascript:alert(' . getMessage('share_with_sponsor') . ')">Tell me more about this...</a></small>';
+    CEWriteFormFieldCheckbox('assign_proxy', 'Do you wish to assign your vote to your State/Terriroty proxy?', $user->assign_proxy);
     echo '</fieldset><p>';      
   }
 ?>

@@ -13,16 +13,22 @@
     CEWriteFormFieldHidden('uid', $user->uid);
     echo '<fieldset><legend>Required information</legend>';
     CEWriteFormFieldTextAutofocus('email', 'Email Address', $user->email, 245, $user->email_message);
-    CEWriteFormFieldText('first_name', 'First name', $user->first_name, 60, $user->first_name_message);
-    CEWriteFormFieldText('last_name', 'Last name', $user->last_name, 60, $user->last_name_message);
+    CEWriteFormFieldText('first_name', 'First Name', $user->first_name, 60, $user->first_name_message);
+    CEWriteFormFieldText('last_name', 'Last Name', $user->last_name, 60, $user->last_name_message);
     CEWriteFormFieldText('primary_org', 'Organisation', $user->primary_org, 60, $user->primary_org_message);
+	CEWriteFormFieldText('mobile_num', 'Mobile Number', $user->mobile_num, 20, $user->mobile_num_message);
+	CEWriteFormFieldCheckbox('mailing_list', 'Do you want to be added to local, regional and national mailing list?', $user->mailing_list);
+    echo '<small><a href="javascript:alert(' . getMessage('mailing_list') . ')">Tell me more about this...</a></small>';
+    CEWriteFormFieldCheckbox('share_with_sponsor', 'Can we share your details with our sponsors and supporters?', $user->share_with_sponsor);
+    echo '<small><a href="javascript:alert(' . getMessage('share_with_sponsor') . ')">Tell me more about this...</a></small>';
     echo '</fieldset><p>';
-    ceWriteSaveAndCancelButtons('/'); 
-    writeHTMLRCJAMembership($user);
     ceWriteSaveAndCancelButtons('/'); 
     echo '<br><fieldset><legend>Optional information</legend>';
     writeAddressHTML($user);
-    echo '</fieldset><p>';  
+    echo '</fieldset><p>';
+	ceWriteSaveAndCancelButtons('/'); 
+	writeHTMLRCJAMembership($user);
+ 
     // To Do: Go back to the previous page, not the main menu
     CEWriteFormEnd('/');
     CEWritePageEnd();
@@ -37,7 +43,8 @@
     $query->bindParam(':first_name',         $user->first_name);
     $query->bindParam(':last_name',          $user->last_name);
     $query->bindParam(':primary_org',        $user->primary_org);
-    $query->bindParam(':adrs_line_1',        $user->adrs_line_1);
+    $query->bindParam(':mobile_num',         $user->mobile_num);
+	$query->bindParam(':adrs_line_1',        $user->adrs_line_1);
     $query->bindParam(':adrs_line_2',        $user->adrs_line_2);
     $query->bindParam(':suburb',             $user->suburb);
     $query->bindParam(':postcode',           $user->postcode);
@@ -45,7 +52,8 @@
     $query->bindParam(':rcja_member',        ceBoolToInt($user->rcja_member));
     $query->bindParam(':mailing_list',       ceBoolToInt($user->mailing_list));
     $query->bindParam(':share_with_sponsor', ceBoolToInt($user->share_with_sponsor));
-    
+    $query->bindParam(':assign_proxy',       ceBoolToInt($user->assign_proxy));
+	  
     $result = $query->execute();
     header('location: /');
   }
@@ -61,6 +69,7 @@
     $user->first_name         = postFieldDefault('first_name');
     $user->last_name          = postFieldDefault('last_name');
     $user->primary_org        = postFieldDefault('primary_org');
+	$user->mobile_num         = postFieldDefault('mobile_num');
     $user->access_level       = '';
     $user->adrs_line_1        = postFieldDefault('adrs_line_1');
     $user->adrs_line_2        = postFieldDefault('adrs_line_2');
@@ -70,7 +79,8 @@
     $user->rcja_member        = postFieldDefault('rcja_member');
     $user->mailing_list       = postFieldDefault('mailing_list');
     $user->share_with_sponsor = postFieldDefault('share_with_sponsor');
-
+    $user->assign_proxy       = postFieldDefault('assign_proxy');
+	 
     if (empty($action))
     {
       GetValuesFromPK($con, $user);
@@ -81,18 +91,20 @@
       if (validateUserUpdateSelf($con, $user))
       {
         Save($con, 'update user ' .
-		           'set email              = :email,       ' .
-                   '    first_name         = :first_name,  ' . 
-                   '    last_name          = :last_name,   ' . 
-                   '    primary_org        = :primary_org, ' . 
-                   '    adrs_line_1        = :adrs_line_1, ' . 
-                   '    adrs_line_2        = :adrs_line_2, ' . 
-                   '    suburb             = :suburb,      ' . 
-                   '    postcode           = :postcode,    ' . 
-                   '    state              = :state,    ' . 
-                   '    rcja_member        = :rcja_member,        ' . 
-                   '    mailing_list       = :mailing_list,        ' . 
-                   '    share_with_sponsor = :share_with_sponsor        ' . 
+		           'set email              = :email,       			' .
+                   '    first_name         = :first_name,  			' . 
+                   '    last_name          = :last_name,   			' . 
+                   '    primary_org        = :primary_org, 			' .
+			       '    mobile_num         = :mobile_num,  			' .
+                   '    adrs_line_1        = :adrs_line_1, 			' . 
+                   '    adrs_line_2        = :adrs_line_2, 			' . 
+                   '    suburb             = :suburb,      			' . 
+                   '    postcode           = :postcode,    			' . 
+                   '    state              = :state,      			' . 
+                   '    rcja_member        = :rcja_member,      	' . 
+                   '    mailing_list       = :mailing_list,     	' . 
+                   '    share_with_sponsor = :share_with_sponsor	' . 
+			 	   '    assign_proxy	   = :assign_proxy      	' . 
 				   'where uid = :uid',
              $user);
       }
