@@ -46,7 +46,8 @@
         echo '<h2>System Administrator Actions</h2>
               <p class="indent"><a href="/sys-admin/user/">Manage users</a></p>
               <p class="indent"><a href="/sys-admin/backup/">Backup and restore database</a></p>
-              <p class="indent"><a href="/sys-admin/log/">View system logs</a></p>';
+              <p class="indent"><a href="/sys-admin/log/">View system logs</a></p>
+              <p class="indent"><a href="/org-admin/mem-reg">View membership register</a></p>';
               
       }
       
@@ -78,7 +79,27 @@
    if (empty($_SESSION['uid_logged_on_user']))
      header('location: /login');
    else{
-     WriteMainMenu($con);
+	     //force information update for missing mobile or last login in previous year
+	 	 $update = 0;
+	   	 $sql = 'SELECT uid FROM user WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '" AND (mobile_num IS NULL OR last_login IS NULL OR YEAR(last_login) < YEAR(NOW()))';
+	     $result = $con->query($sql);
+	     if($result->fetchColumn()):
+	     	$update = 1;
+	     endif;
+	   
+		 //udpate latest login time in user table
+		 $sql = 'UPDATE user SET last_login = now() WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"';
+		 $con->query($sql);
+	   
+	     //redirect for force update
+	     if($update == 1):
+	     	header("Location: user/my-details.php?message=1");
+	   		die();
+	   	 endif;
+	   
+	 WriteMainMenu($con);
+	 
+
    }  
 
 ?>
