@@ -30,7 +30,7 @@ function WriteMentorCompetitionIndex($con)
     '  cn.comp_name       as comp_name, ' .
     '  cn.custom_message  as custom_message, ' .
     '  cn.active          as active, ' .
-	  '  date_format(cn.event_date, "%d %b %Y") as event_date, ' .
+    '  date_format(cn.event_date, "%d %b %Y") as event_date, ' .
     '  IF(cn.active, date_format(end_date, "%d %b %Y"), "Closed") as open_until, ' .
     '  IFNULL(cnt.cnt , 0) as count ' .
     'from ' .
@@ -55,9 +55,8 @@ function WriteMentorCompetitionIndex($con)
     '   group by ' .
     '     uid_comp_name) as cnt ' .
     'on cn.uid_comp_name = cnt.uid_comp_name ' .
-	'where cn.year = YEAR(NOW()) ' .
-	'order by event_date ASC ';
-
+	'where cn.year = YEAR(NOW()) OR cn.year = YEAR(NOW())-1 ' .
+	'order by year DESC, state ASC, event_date ASC ';
     
   echo '<script>
          function editMyEntries(uidCompName){
@@ -115,7 +114,11 @@ function WriteMentorCompetitionIndex($con)
     }
     else
     {
-      echo '<a href="javascript:editMyEntries(\'' . $row["uid_comp_name"] . '\')">Enter</a>';
+      if ($row['active']){
+        echo '<a href="javascript:editMyEntries(\'' . $row["uid_comp_name"] . '\')">Enter</a>';
+      } else {
+        echo '&nbsp;';  
+      }  
     } 
       echo '</td>';
       echo "</tr>";    
