@@ -6,7 +6,7 @@
   
   function GetValuesFromPK($con, $student)
   {
-    $sql = $con->prepare('select first_name, last_name, gender, year_at_school from team_member where uid = :uid_team_member');
+    $sql = $con->prepare('select first_name, last_name, gender, year_at_school, dob from team_member where uid = :uid_team_member');
     $sql->bindParam(':uid_team_member', $student->uid);
     $sql->execute();
     $row = $sql->fetch(PDO::FETCH_ASSOC);
@@ -14,6 +14,7 @@
     $student->lastName  = $row['last_name'] ;
     $student->gender  = $row['gender'] ;
     $student->yearAtSchool  = $row['year_at_school'] ;
+	$student->dob = $row['dob'] ;
   }  
 
   function WriteHTML($con, $Heading, $FormAction, $uid_team, $student)
@@ -62,18 +63,20 @@
     return 
       empty($student->firstNameMessage) and 
       empty($student->lastNameMessage) and  
-      empty($student->genderMessage) and  
-      empty($student->yearAtSchoolMessage); 
+      empty($student->genderMessage) and
+      empty($student->yearAtSchoolMessage) and
+	  empty($student->dob); 
    
   }
   
   function Update($con, $student){
-    $query = $con->prepare('update team_member set first_name = :first_name, last_name = :last_name, gender = :gender, year_at_school = :year_at_school where uid = :uid');
+    $query = $con->prepare('update team_member set first_name = :first_name, last_name = :last_name, gender = :gender, year_at_school = :year_at_school, dob = :dob where uid = :uid');
     $query->bindParam(':uid',        $student->uid);
     $query->bindParam(':first_name', $student->firstName);
     $query->bindParam(':last_name',  $student->lastName);
     $query->bindParam(':gender',  $student->gender);
     $query->bindParam(':year_at_school',  $student->yearAtSchool);
+	$query->bindParam(':dob', $student->dob);
     $result = $query->execute();
     header('location: /my-entries/edit-comp.php');
   }
@@ -98,10 +101,12 @@ try
     $student->lastName            = postFieldDefault('last_name'); 
     $student->gender              = postFieldDefault('gender');
     $student->yearAtSchool        = postFieldDefault('year_at_school');
+	$student->dob				  = postFieldDefault('dob');
     $student->firstNameMessage    = '';
     $student->lastNameMessage     = ''; 
     $student->genderMessage       = '';
-    $student->yearAtSchoolMessage = '';    
+    $student->yearAtSchoolMessage = '';
+	$student->dob				  - '';
      
     if ($action == CE_NEW)
     {

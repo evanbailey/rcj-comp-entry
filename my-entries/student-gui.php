@@ -17,6 +17,8 @@
       $genderMessage       = $student->genderMessage;
       $yearAtSchool        = $student->yearAtSchool;
       $yearAtSchoolMessage = $student->yearAtSchoolMessage;
+	  $dob				   = $student->dob;
+	  $dobMessage          = $student->dobMessage;
     } else {         
       $uidTeamMember       = '';  
       $firstName           = '';
@@ -27,6 +29,8 @@
       $genderMessage       = '';
       $yearAtSchool        = '';      
       $yearAtSchoolMessage = '';
+      $dob                 = '';      
+      $dobMessage 		   = '';
     }
     
     $genderItems       = array('FEMALE' => 'Female', 'MALE' => 'Male');
@@ -46,7 +50,8 @@
     CEWriteFormFieldText($prefix . 'last_name',  'Last Name', $lastName, 60, $lastNameMessage);
     CEWriteFormFieldDropDownHardCoded($prefix . 'gender', 'Gender', $gender, $genderItems, $genderMessage);
     CEWriteFormFieldDropDownHardCoded($prefix . 'year_at_school', 'Year at School', $yearAtSchool, $yearAtSchoolItems, $yearAtSchoolMessage);    
-    
+    CEWriteFormFieldDate($prefix . 'dob', 'Date of Birth', $dob, $dobMessage);
+	  
     if ($index != '0'){
       echo '</fieldset>';
     } 
@@ -63,6 +68,7 @@
     $student->lastName  = postFieldDefault($prefix . 'last_name'); 
     $student->gender    = postFieldDefault($prefix . 'gender');
     $student->yearAtSchool = postFieldDefault($prefix . 'year_at_school');    
+	$student->dob = postFieldDefault($prefix . 'dob');    
   } 
   
 ?>
