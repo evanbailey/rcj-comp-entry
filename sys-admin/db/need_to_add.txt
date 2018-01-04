@@ -1,10 +1,35 @@
 database alterations required for system not yet in php scripts
+
 	ALTER TABLE team ADD soccer_group int
+	
 	ALTER TABLE mentor_team ADD pmt_amount float
+	ALTER TABLE mentor_team ADD pmt_notes VARCHAR(255)
+	
 	ALTER TABLE user ADD assign_proxy int
 	ALTER TABLE user ADD last_login datetime
 	ALTER TABLE user ADD member_type VARCHAR
 	ALTER TABLE user ADD member_begin DATE
 	ALTER TABLE user ADD member_end DATE
 	ALTER TABLE user ADD mobile_num VARCHAR(20)
-	ALTER TABLE user ADD dob DATE
+	
+	ALTER TABLE team_member ADD dob DATE
+	
+CREATE VIEW 
+  v_invoice_payment 
+AS SELECT
+ mt.uid AS uid_mentor_team,
+ mt.invoice_number AS invoice_number,
+ mt.pmt_amount AS pmt_amount,
+ mt.pmt_notes AS pmt_notes,
+ u.first_name AS first_name,
+ u.last_name AS last_name,
+ mt.organisation AS organisation,
+ u.email AS email,
+ mt.uid_comp_name AS uid_comp_name
+FROM 
+  mentor_team mt
+LEFT JOIN
+  user u
+ON
+  mt.uid_user = u.uid
+
