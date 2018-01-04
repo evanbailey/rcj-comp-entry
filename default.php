@@ -59,6 +59,7 @@
         echo '<p class="indent"><a href="/comp-admin/">Manage competitions and divisions</a></p>';
         echo '<p class="indent"><a href="/report/competition">Download by competition</a></p>';
         echo '<p class="indent"><a href="/report/year">Download by year</a></p>';
+		echo '<p class="indent"><a href="/payment-records/">Record Invoice Payments</a></p>';
         echo '<h2>Mentor Actions</h2>';
       }
       
