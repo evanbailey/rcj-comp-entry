@@ -38,7 +38,7 @@
   } else if ($httpHost == 'enter.rcjonline.org.au'){
     define("C_DB_NAME",      "rcjonlin_enter");
     define("C_DB_USER_NAME", "rcjonlin_enter");
-    define("C_DB_PASSWORD",  "T^mvQKRb8_z9J=Hr=x");    
+    define("C_DB_PASSWORD",  "T^mvQKRb8_z9J=Hr=x");   //this password is not current. 
     define("C_MYSQL",        "mysql");
     define("C_MYSQLDUMP",    "mysqldump");
     define("C_DEBUG",        "FALSE");
