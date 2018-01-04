@@ -68,7 +68,7 @@ function WriteMentorCompetitionIndex($con)
          
         </script>';  
     
-  echo '<h2>Rules and results</h2>';  
+ /* echo '<h2>Rules and results</h2>';  
   echo '<p class="indent"><a href="http://www.robocupjunior.org.au/dance">View the RCJA National Dance Rules</a></p>';
   echo '<p class="indent"><a href="http://www.robocupjunior.org.au/rescue">View the RCJA National Rescue Rules</a></p>';
   echo '<p class="indent"><a href="http://www.robocupjunior.org.au/soccer">View the RCJA National Soccer Rules</a></p>';
@@ -76,7 +76,7 @@ function WriteMentorCompetitionIndex($con)
   echo '<p class="indent"><a href="http://www.robocupjunior.org.au/vic/rescue">View RCJV Victorian Rescue Rules</a></p>';
   
   echo '<p class="indent"><a href="http://www.robocupjunior.org.au/sites/default/files/RCJA_Media_Release_Deed_5.pdf">View RCJA Media Release Deed</a></p>';
-    
+  */  
   echo '<h2>Enter a competition | Edit my competition entries</h2>';
   echo "<table border='1'>
           <tr>

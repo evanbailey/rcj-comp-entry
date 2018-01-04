@@ -65,8 +65,7 @@
       empty($student->lastNameMessage) and  
       empty($student->genderMessage) and
       empty($student->yearAtSchoolMessage) and
-	  empty($student->dob); 
-   
+	  empty($student->dobMessage); 
   }
   
   function Update($con, $student){
@@ -77,7 +76,7 @@
     $query->bindParam(':gender',  $student->gender);
     $query->bindParam(':year_at_school',  $student->yearAtSchool);
 	$query->bindParam(':dob', $student->dob);
-    $result = $query->execute();
+	$result = $query->execute();  
     header('location: /my-entries/edit-comp.php');
   }
 
@@ -98,7 +97,7 @@ try
     $student                      = new rcjStudent();
     $student->uid                 = postFieldDefault('uid_team_member');
     $student->firstName           = postFieldDefault('first_name');
-    $student->lastName            = postFieldDefault('last_name'); 
+    $student->lastName            = postFieldDefault('last_name');
     $student->gender              = postFieldDefault('gender');
     $student->yearAtSchool        = postFieldDefault('year_at_school');
 	$student->dob				  = postFieldDefault('dob');
@@ -106,8 +105,8 @@ try
     $student->lastNameMessage     = ''; 
     $student->genderMessage       = '';
     $student->yearAtSchoolMessage = '';
-	$student->dob				  - '';
-     
+	$student->dobMessage		  = '';
+	 
     if ($action == CE_NEW)
     {
       WriteHTML(

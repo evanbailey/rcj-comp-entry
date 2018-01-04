@@ -24,7 +24,7 @@
       CECheckNotNull($this->lastName,     $this->lastNameMessage,  'Please enter a last name.');
       CECheckNotNull($this->gender,       $this->genderMessage,  'Please select the student\'s gender.');
       CECheckNotNull($this->yearAtSchool, $this->yearAtSchoolMessage,  'Please select the student\'s year at school.');
-      CECheckNotNull($this->dobMessage,   $this->dobMessage,  'Please end the student\'s date of birth.');
+      CECheckNotNull($this->dobMessage,   $this->dobMessage,  'Please enter the student\'s date of birth.');
 
       return (!$this->hasInvalidMessage());
 
