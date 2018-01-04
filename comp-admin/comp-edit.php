@@ -143,11 +143,11 @@
     saveDefaultDivision($con, $comp,  3, 'Riley Rover Rescue');
     saveDefaultDivision($con, $comp,  4, 'Primary Rescue');
     saveDefaultDivision($con, $comp,  5, 'Secondary Rescue');
-    saveDefaultDivision($con, $comp,  6, 'Advanced Rescue');
+    saveDefaultDivision($con, $comp,  6, 'Open Rescue');
     saveDefaultDivision($con, $comp,  7, 'Simple Simon Soccer');
-    saveDefaultDivision($con, $comp,  8, 'GEN II Soccer');
-    saveDefaultDivision($con, $comp,  9, 'Lightweight Soccer (Up to 1.1 kg)');
-    saveDefaultDivision($con, $comp, 10, 'Open Soccer (Up to 2.5 kg)');
+    saveDefaultDivision($con, $comp,  8, 'Standard Soccer');
+    saveDefaultDivision($con, $comp,  9, 'Lightweight Soccer');
+    saveDefaultDivision($con, $comp, 10, 'Open Soccer');
   }
   
   function Save($con, $action, $uidReturnTo, $comp){
