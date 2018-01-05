@@ -80,6 +80,16 @@
    if (empty($_SESSION['uid_logged_on_user']))
      header('location: /login');
    else{
+	     //cleanup any instances of mentor_team records for user where they have no teams to match this record
+	     $result = $con->query('SELECT uid FROM mentor_team WHERE uid_user = "' . $_SESSION['uid_logged_on_user'] . '"');
+	     foreach($result as $row):
+	     	$team_count = $con->query('SELECT count(uid) AS count FROM team WHERE uid_mentor_team = "' . $row['uid'] . '"')->fetchColumn();
+	   		if($team_count==0):
+	        	$delete = $con->query('DELETE FROM mentor_team where uid = "' . $row['uid'] . '"');
+	   		endif;
+	   	 endforeach;
+	   
+	     
 	     //force information update for missing mobile or last login in previous year
 	 	 $update = 0;
 	   	 $sql = 'SELECT uid FROM user WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '" AND (mobile_num IS NULL OR last_login IS NULL OR YEAR(last_login) < YEAR(NOW()))';
