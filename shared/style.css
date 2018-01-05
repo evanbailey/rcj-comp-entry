@@ -52,6 +52,11 @@ textarea {
   float:right;
   height: 26px;
 }
+.smallcheckbox {
+  width: 26px;
+  height: 26px;
+}
+
 
 .field_message{
   text-align: left;
