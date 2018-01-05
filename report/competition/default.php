@@ -286,7 +286,7 @@ function GetReportDefinition($report_type, $report_format, $uid_comp_name, &$sql
   } else if ($report_type == 'SQL'){
     $title = 'Insert SQL';
     $sql = 'select "truncate table imported_team;" from dual union all '
-         . 'select concat("insert into imported_team (uid, team_name, organisation, mentor_first, mentor_last, mentor_email, registered_division, num_member) values (",' 
+         . 'select concat("insert into imported_team (uid, team_name, organisation, mentor_first, mentor_last, mentor_email, registered_division, uid_imported_mentor, num_member) values (",' 
          . 'quote(uid), ", ", '
          . 'quote(team_name), ", ", '
          . 'quote(organisation), ", ", ' 
@@ -294,6 +294,7 @@ function GetReportDefinition($report_type, $report_format, $uid_comp_name, &$sql
          . 'quote(mentor_last_name), ", ", ' 
          . 'quote(mentor_email), ", ", ' 
          . 'quote(div_name), ", ", ' 
+		 . 'quote(uid_mentor_team), ", ", ' 
          . '      ' . 'tm.team_member_count' . ' , "); "'
          . ') '         
          . 'from '
@@ -308,12 +309,22 @@ function GetReportDefinition($report_type, $report_format, $uid_comp_name, &$sql
          . 'quote(uid_team_member), ", ", '
          . 'quote(uid_team), ", ", '
          . 'quote(team_member_first_name), ", ", ' 
-         . 'quote(team_member_last_name),"); ")'
+         . 'quote(team_member_last_name),"); ") '
          . 'from '
          . '  v_team_member '
          . 'where '
          . '  uid_comp_name = "' . $uid_comp_name . '" '
-         ;   
+		 . 'union all '
+		 . 'select "truncate table imported_mentor;" from dual union all '
+		 . 'select concat ("insert into imported_mentor (uid, pmt, comments) values (",'
+		 . 'quote(uid), ", ", '
+		 . 'quote(pmt_ok), ", ", '
+		 . 'quote(pmt_notes),"); ") '
+		 . 'from '
+		 . 'mentor_team '
+		 . 'where '
+		 . '  uid_comp_name = "' . $uid_comp_name . '"';
+	  
   } else if ($report_type == 'ORGANISATION'){
     $title = 'Organisation Listing';
     $sql = 
