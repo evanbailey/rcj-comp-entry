@@ -4,6 +4,7 @@ database alterations required for system not yet in php scripts
 	
 	ALTER TABLE mentor_team ADD pmt_amount float
 	ALTER TABLE mentor_team ADD pmt_notes VARCHAR(255)
+	ALTER TABLE mentor_team ADD pmt_ok INT(1) NOT NULL DEFAULT '0';
 	
 	ALTER TABLE user ADD assign_proxy int
 	ALTER TABLE user ADD last_login datetime
@@ -33,3 +34,10 @@ LEFT JOIN
 ON
   mt.uid_user = u.uid
 
+
+
+
+
+//this one has been updated in alter db 03
+DROP VIEW v_team;
+create view v_team                as select                           t.uid,                            c.uid_comp_name,                  cd.uid as uid_division,           mt.uid_user,                      c.year,                           c.state,                          c.comp_name,                      c.start_date,                     c.end_date,                       c.active,                         mt.organisation,                  u.first_name as mentor_first_name,   u.last_name as mentor_last_name,     u.email as mentor_email,             cd.disp_order as div_disp_order,     cd.div_name,                         t.team_name,                      t.uid_mentor_team               from                                team t                          left join comp_division cd          on t.uid_comp_division = cd.uid left join mentor_team mt            on t.uid_mentor_team = mt.uid   left join user u                    on mt.uid_user = u.uid          left join v_comp_name c             on cd.uid_comp_name = c.uid_comp_name order by                            year,                             state,                            comp_name,                        organisation,                     mentor_first_name,                mentor_last_name,                 div_disp_order,                   team_name     

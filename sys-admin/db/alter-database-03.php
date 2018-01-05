@@ -135,7 +135,8 @@ try {
     '  u.email as mentor_email,           ' . 
     '  cd.disp_order as div_disp_order,   ' .
     '  cd.div_name,                       ' .
-    '  t.team_name                     ' .
+    '  t.team_name,                    ' .
+	'  t.uid_mentor_team               ' .
     'from                              ' . 
     '  team t                          ' .
     'left join comp_division cd        ' .
