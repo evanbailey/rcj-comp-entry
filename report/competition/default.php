@@ -363,6 +363,18 @@ function RunReport($con, $uid_comp_name, $report_type, $report_format){
   if (!StartSessionConfirmPageAccess($con, C_COMP_ADMIN)){
       exit(); //==>>
   }
+
+  //cleanup any crap from closed competitions before running reports, don't cleanup open competitions in case somebody is half way through inputting first team
+  	$comps_to_clean = $con->query('SELECT uid FROM comp_name WHERE NOW()>end_date');
+	foreach($comps_to_clean as $comp):
+		$result = $con->query('SELECT uid FROM mentor_team WHERE uid_comp_name = "' . $comp['uid'] . '"');
+		 foreach($result as $row):
+			$team_count = $con->query('SELECT count(uid) AS count FROM team WHERE uid_mentor_team = "' . $row['uid'] . '"')->fetchColumn();
+			if($team_count==0):
+				$delete = $con->query('DELETE FROM mentor_team where uid = "' . $row['uid'] . '"');
+			endif;
+		 endforeach;
+	endforeach;
     
  $action                = postFieldDefault('action'); 
  $uid_comp_name         = postFieldDefault('uid_comp_name'); 
