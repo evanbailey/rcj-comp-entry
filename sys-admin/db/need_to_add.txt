@@ -14,7 +14,8 @@ database alterations required for system not yet in php scripts
 	ALTER TABLE user ADD mobile_num VARCHAR(20)
 	
 	ALTER TABLE team_member ADD dob DATE
-	
+
+DROP VIEW IF EXISTS v_invoice_payment;
 CREATE VIEW 
   v_invoice_payment 
 AS SELECT
@@ -26,7 +27,8 @@ AS SELECT
  u.last_name AS last_name,
  mt.organisation AS organisation,
  u.email AS email,
- mt.uid_comp_name AS uid_comp_name
+ mt.uid_comp_name AS uid_comp_name,
+ mt.pmt_ok as pmt_ok
 FROM 
   mentor_team mt
 LEFT JOIN
