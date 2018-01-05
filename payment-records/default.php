@@ -1,6 +1,8 @@
 <?php
+  
   error_reporting(E_ALL); ini_set('display_errors', '1');
   require $_SERVER["DOCUMENT_ROOT"] . '/shared/require.php';
+  require $_SERVER["DOCUMENT_ROOT"] . '/user/user-shared.php';
 
   if (!StartSessionConfirmPageAccess($con, C_COMP_ADMIN)){
       exit(); //==>>
@@ -46,9 +48,17 @@
 		foreach(array_keys($_POST) as $key):
 			if($key!='action' AND $key!='uid_comp_name'):
 				$stmt = $con->prepare('UPDATE mentor_team SET pmt_amount = :pmt_amount, pmt_notes = :pmt_notes WHERE uid = :key');
+				$stmt = $con->prepare('UPDATE mentor_team SET pmt_amount = :pmt_amount, pmt_notes = :pmt_notes, pmt_ok = :pmt_ok WHERE uid = :key');
 				$stmt->bindParam(':key', $key);
 				$stmt->bindParam(':pmt_amount', $_POST[$key]['pmt_amount']);
 				$stmt->bindParam(':pmt_notes', $_POST[$key]['pmt_notes']);
+				if(isset($_POST[$key]['pmt_ok'])):
+					$a = 1;
+					$stmt->bindParam(':pmt_ok', $a);
+				else: 
+					$a = 0;
+					$stmt->bindParam(':pmt_ok', $a);
+				endif;
 				$stmt->execute();
 			endif;
 		endforeach;
@@ -88,7 +98,9 @@
 		  <th>Amount Due</th>
 		  <th>Viewed Invoice?</th>
 		  <th>Amount Paid</th>
+		  <th>Check</th>
 		  <th>Notes</th>
+		  <th>TL</th>
 	  </tr>";
       $sql = 'SELECT 
 	  		   uid_mentor_team,
@@ -98,7 +110,8 @@
 			   email, 
 			   pmt_notes, 
 			   pmt_amount, 
-			   IF(ISNULL(invoice_number), "Unviewed", "Viewed") as invoice 
+			   IF(ISNULL(invoice_number), "Unviewed", "Viewed") as invoice,
+			   pmt_ok
 			 FROM 
 			   v_invoice_payment 
 			 WHERE 
@@ -125,7 +138,16 @@
 				echo '<td>' . number_format(htmlspecialchars($amt_due), 2) . '</td>';
 				echo '<td>' . htmlspecialchars($row['invoice']) . '</td>';
 				echo '<td><input type="number" step="0.01" size="9" name="' . $row['uid_mentor_team'] . '[pmt_amount]" min="0" max="99999" value="' . $row['pmt_amount'] . '"></td>'; 
-				echo '<td><input type="text" size="40" name="' . $row['uid_mentor_team'] . '[pmt_notes]" value="' . $row['pmt_notes'] . '"></td>'; 
+   			    echo '<td><input type="checkbox" class="smallcheckbox" name="' . $row['uid_mentor_team'] . '[pmt_ok]"'; if (ceIntToBool($row['pmt_ok'])){echo ' checked="checked" ';} echo '></td>';
+				//echo '<td>' . CEWriteFormFieldCheckbox($row['uid_mentor_team'] . ['pmt_ok'] , '', ceIntToBool($row['pmt_ok']));
+				echo '<td><input type="text" size="40" name="' . $row['uid_mentor_team'] . '[pmt_notes]" value="' . $row['pmt_notes'] . '"></td>';
+				echo'<td>'; 
+					if($row['pmt_ok']==1): 
+						echo '<span style="color: green">Paid</span>'; 
+					else: 
+						echo '<span style="color: red">Unpaid</span>'; 
+					endif;
+				echo '</td>';
 			echo "</tr>";
 	    }
     echo "</table>";
@@ -135,6 +157,7 @@
   endif;
 
 ?>
+
 
 
 
