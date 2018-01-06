@@ -58,8 +58,12 @@
         echo '<h2>Competition Administrator Actions</h2>';  
         echo '<p class="indent"><a href="/comp-admin/">Manage competitions and divisions</a></p>';
         echo '<p class="indent"><a href="/report/competition">Download by competition</a></p>';
-        // echo '<p class="indent"><a href="/report/year">Download by year</a></p>';
+        echo '<p class="indent"><a href="/report/year">Download by year</a></p>';
 		echo '<p class="indent"><a href="/payment-records/">Record Invoice Payments</a></p>';
+		echo '<p class="indent"><a href="/scheduling/dance/">Dance Scheduling Assistant</a></p>';
+		echo '<p class="indent"><a href="/scheduling/soccer/">Soccer Scheduling Assistant</a></p>';
+		echo '<p class="indent"><a href="/scheduling/rescue/">Rescue Scheduling Assistant</a></p>';
+
         echo '<h2>Mentor Actions</h2>';
       }
       
