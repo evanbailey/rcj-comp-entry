@@ -18,7 +18,7 @@ try {
   ceExecSQL(
     $con, 
     'create view v_local_time as ' .
-    'select CONVERT_TZ(UTC_TIMESTAMP(), "+00:00", "+10:00") as now from dual',
+    'select CONVERT_TZ(UTC_TIMESTAMP(), "+00:00", "+10:00") as now from dual',v
 	  'Created: v_local_time');  
 
   ceExecSQL(
@@ -136,6 +136,7 @@ try {
     '  cd.disp_order as div_disp_order,   ' .
     '  cd.div_name,                       ' .
     '  t.team_name,                    ' .
+	'  t.soccer_group,                 ' .
 	'  t.uid_mentor_team               ' .
     'from                              ' . 
     '  team t                          ' .

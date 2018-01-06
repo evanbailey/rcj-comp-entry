@@ -16,6 +16,7 @@ database alterations required for system not yet in php scripts
 	ALTER TABLE team_member ADD dob DATE
 
 DROP VIEW IF EXISTS v_invoice_payment;
+
 CREATE VIEW 
   v_invoice_payment 
 AS SELECT
@@ -42,4 +43,5 @@ ON
 
 //this one has been updated in alter db 03
 DROP VIEW v_team;
-create view v_team                as select                           t.uid,                            c.uid_comp_name,                  cd.uid as uid_division,           mt.uid_user,                      c.year,                           c.state,                          c.comp_name,                      c.start_date,                     c.end_date,                       c.active,                         mt.organisation,                  u.first_name as mentor_first_name,   u.last_name as mentor_last_name,     u.email as mentor_email,             cd.disp_order as div_disp_order,     cd.div_name,                         t.team_name,                      t.uid_mentor_team               from                                team t                          left join comp_division cd          on t.uid_comp_division = cd.uid left join mentor_team mt            on t.uid_mentor_team = mt.uid   left join user u                    on mt.uid_user = u.uid          left join v_comp_name c             on cd.uid_comp_name = c.uid_comp_name order by                            year,                             state,                            comp_name,                        organisation,                     mentor_first_name,                mentor_last_name,                 div_disp_order,                   team_name     
+create view v_team                as select                           t.uid,                            c.uid_comp_name,                  cd.uid as uid_division,           mt.uid_user,                      c.year,                           c.state,                          c.comp_name,                      c.start_date,                     c.end_date,                       c.active,                         mt.organisation,                  u.first_name as mentor_first_name,   u.last_name as mentor_last_name,     u.email as mentor_email,             cd.disp_order as div_disp_order,     cd.div_name,                         t.team_name, t.soccer_group,                      t.uid_mentor_team               from                                team t                          left join comp_division cd          on t.uid_comp_division = cd.uid left join mentor_team mt            on t.uid_mentor_team = mt.uid   left join user u                    on mt.uid_user = u.uid          left join v_comp_name c             on cd.uid_comp_name = c.uid_comp_name order by                            year,                             state,                            comp_name,                        organisation,                     mentor_first_name,                mentor_last_name,                 div_disp_order,                   team_name     
+
