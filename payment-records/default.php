@@ -96,7 +96,7 @@
 		  <th>Email</th>
 		  <th>Qty Teams</th>
 		  <th>Amount Due</th>
-		  <th>Viewed Invoice?</th>
+		  <th>Invoice Num</th>
 		  <th>Amount Paid</th>
 		  <th>Check</th>
 		  <th>Notes</th>
@@ -110,7 +110,7 @@
 			   email, 
 			   pmt_notes, 
 			   pmt_amount, 
-			   IF(ISNULL(invoice_number), "Unviewed", "Viewed") as invoice,
+			   IF(ISNULL(invoice_number), "Unviewed", invoice_number) as invoice,
 			   pmt_ok
 			 FROM 
 			   v_invoice_payment 
