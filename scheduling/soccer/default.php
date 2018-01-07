@@ -15,7 +15,7 @@
 	  
   }
   
-  error_reporting(E_ALL); ini_set('display_errors', '1');
+//  error_reporting(E_ALL); ini_set('display_errors', '1');
   require $_SERVER["DOCUMENT_ROOT"] . '/shared/require.php';
   require $_SERVER["DOCUMENT_ROOT"] . '/user/user-shared.php';
 
@@ -63,7 +63,6 @@
 	if($action == 'update'):
 		//handles automatic allocation
 		if($_POST['submit'] == 'auto_allocate'):
-			echo 'auto alloc time!';
 			$group_number = 1;
 			foreach(array_keys($_POST['auto_alloc_array']) as $current_division):
 				//empty out groups first
