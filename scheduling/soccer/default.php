@@ -1,11 +1,16 @@
 <?php
 
-  function SoccerGroupCalc1($num_teams, $group_size) {
-	  $num_groups = $num_teams/$group_size;
-	  $games_per_group = ($group_size*($group_size-1))/2;
+  function SoccerGroupCalc1($num_teams, $num_groups) {
+	  $teams_per_group = floor($num_teams/$num_groups);
+	  
+	  $games_per_group = ($teams_per_group*($teams_per_group-1))/2;
 	  $total_games = $num_groups * $games_per_group;  
-		  
-	  return $num_groups . ' Groups<br/>' . $games_per_group .' Games per Group<br/>' . $total_games . ' Games in Total';
+	  
+	  if($teams_per_group < 1 OR $games_per_group < 1):
+	      return '';
+	  else:
+	  	return $teams_per_group . ' Teams and ' . $games_per_group . ' Games per Group<br/>' . $total_games . ' Games in Total<br/>' . ($num_teams - ($num_groups * $teams_per_group)) . ' Teams Unallocated';
+	  endif;
 	  
 	  
   }
@@ -56,23 +61,38 @@
 
 	//update if commanded to do so
 	if($action == 'update'):
-		foreach(array_keys($_POST) as $key):
-			if($key!='action' AND $key!='uid_comp_name'):
-				$stmt = $con->prepare('UPDATE mentor_team SET pmt_amount = :pmt_amount, pmt_notes = :pmt_notes WHERE uid = :key');
-				$stmt = $con->prepare('UPDATE mentor_team SET pmt_amount = :pmt_amount, pmt_notes = :pmt_notes, pmt_ok = :pmt_ok WHERE uid = :key');
-				$stmt->bindParam(':key', $key);
-				$stmt->bindParam(':pmt_amount', $_POST[$key]['pmt_amount']);
-				$stmt->bindParam(':pmt_notes', $_POST[$key]['pmt_notes']);
-				if(isset($_POST[$key]['pmt_ok'])):
-					$a = 1;
-					$stmt->bindParam(':pmt_ok', $a);
-				else: 
-					$a = 0;
-					$stmt->bindParam(':pmt_ok', $a);
-				endif;
-				$stmt->execute();
-			endif;
-		endforeach;
+		//handles automatic allocation
+		if($_POST['submit'] == 'auto_allocate'):
+			echo 'auto alloc time!';
+			$group_number = 1;
+			foreach(array_keys($_POST['auto_alloc_array']) as $current_division):
+				//empty out groups first
+				$update = $con->query('UPDATE team SET soccer_group = NULL WHERE uid_comp_division = "' . $current_division .  '"');
+				
+				$teams_in_div = $con->query('SELECT COUNT(uid) FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND uid_division = "' . $current_division . '"')->fetchColumn();
+				$teams_per_group = floor($teams_in_div/$_POST['auto_alloc_array'][$current_division]);
+				$sql = 'SELECT uid FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND uid_division = "' . $current_division . '" ORDER BY RAND() LIMIT ' . $teams_per_group*$_POST['auto_alloc_array'][$current_division];
+				$teams_in_div = $con->query($sql);
+				
+				$counter = 0;
+				foreach($teams_in_div as $team):
+					$update = $con->query('UPDATE team SET soccer_group = "' . $group_number .  '" WHERE uid = "' . $team['uid'] .  '"');
+					$counter ++;
+					if($counter == $teams_per_group):
+						$group_number ++;
+						$counter = 0;
+					endif;
+				endforeach;
+			endforeach;
+		endif;
+		
+		//handles changing allocations
+		if($_POST['submit'] == 'reallocate'):
+        	echo 'realloc time!';
+			foreach(array_keys($_POST['realloc_array']) as $current_team):
+				$update = $con->query('UPDATE team SET soccer_group = "' . $_POST['realloc_array'][$current_team] .  '" WHERE uid = "' . $current_team . '"');
+			endforeach;
+		endif;
 	endif;
 
 		$formname = 'Soccer Scheduling Assistant';
@@ -91,26 +111,49 @@
 	  		<tr>
 			  <th>Division</th>
 			  <th>Qty Teams</th>
-			  <th>Groups of 2</th>
-			  <th>Groups of 3</th>
-			  <th>Groups of 4</th>
-			  <th>Groups of 5</th>
-			  <th>Groups of 6</th>
-			  <th>Groups of 7</th>
-			  <th>Groups of 8</th>
+			  <th>1 Group</th>
+			  <th>2 Groups</th>
+			  <th>3 Groups</th>
+			  <th>4 Groups</th>
+			  <th>5 Groups</th>
 		  	</tr>";
 		
 		foreach($soccer_divisions as $soccer_division):
 			echo '<tr>';
 				echo '<td>' . $soccer_division['div_name'] . '</td>';
 				echo '<td>' . $soccer_division['count'] . '</td>';
+				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 1) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 2) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 3) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 4) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 5) . '</td>';
+
+			echo '</tr>';
+		endforeach;
+
+
+		$sql = 'SELECT DISTINCT(div_name) AS div_name, COUNT(uid) AS count FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%Soccer%" GROUP BY div_name ORDER BY div_disp_order ASC';
+		$soccer_divisions = $con->query($sql);
+
+		echo "<tr>
+			  <th>Division</th>
+			  <th>Qty Teams</th>
+			  <th>6 Groups</th>
+			  <th>7 Groups</th>
+			  <th>8 Groups</th>
+			  <th>9 Groups</th>
+			  <th>10 Groups</th>
+		  	</tr>";
+		
+		foreach($soccer_divisions as $soccer_division):
+			echo '<tr>';
+				echo '<td>' . $soccer_division['div_name'] . '</td>';
+				echo '<td>' . $soccer_division['count'] . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 6) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 7) . '</td>';
 				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 8) . '</td>';
+				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 9) . '</td>';
+				echo '<td>' . SoccerGroupCalc1($soccer_division['count'], 10) . '</td>';
 			echo '</tr>';
 		endforeach;
 		echo '</table>';
@@ -128,10 +171,11 @@
 		  	</tr>";
 		
 		foreach($soccer_divisions as $soccer_division):
-			$groups_in_div = $con->query('SELECT COUNT(soccer_group) FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name = "' . $soccer_division['div_name'] . '" GROUP BY div_name')->fetchColumn();
+			$sql = 'SELECT COUNT(DISTINCT(soccer_group)) FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name = "' . $soccer_division['div_name'] . '"';
+			$groups_in_div = $con->query($sql)->fetchColumn();
 			echo '<tr>';
 				echo '<td>' . $soccer_division['div_name'] . '</td>';
-				echo '<td><input type="number" step="1" size="2" name="' . $soccer_division['uid_division'] . '" min="1" max="99" value="' . $groups_in_div . '"></td>'; 			
+				echo '<td><input type="number" step="1" size="2" name="auto_alloc_array[' . $soccer_division['uid_division'] . ']" min="1" max="99" value="' . $groups_in_div . '"></td>'; 			
 			echo '</tr>';
 		endforeach;
 		
@@ -139,12 +183,17 @@
 			echo '<td colspan="2"><center><button type="submit" name="submit" value="auto_allocate">Auto Allocate</button></center></td>';
 		echo '</tr>';
 
+		echo '<tr>';
+			echo '<td colspan="2"><center>This will write over any reallocations done below</center></td>';
+		echo '</tr>';
+
 		echo '</table>';
 		echo '</p>';
 
 
 		//table of counts of team by group
-		$sql = 'SELECT DISTINCT(IF(ISNULL(soccer_group), "Unallocated", soccer_group)) AS soccer_group, COUNT(uid) AS count, div_name FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%Soccer%" GROUP BY soccer_group, div_name ORDER BY div_disp_order ASC, soccer_group ASC';
+        // DISTINCT(IF(ISNULL(soccer_group), "Unallocated", soccer_group)) AS
+		$sql = 'SELECT soccer_group, COUNT(uid) AS count, div_name FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%Soccer%" GROUP BY soccer_group, div_name ORDER BY div_disp_order ASC, soccer_group ASC';
 		//echo $sql;
 		$soccer_divisions = $con->query($sql);
 		
@@ -154,13 +203,24 @@
 			  <th>Soccer Group</th>
 			  <th>Division</th>
 			  <th>Qty Teams in Group</th>
+			  <th>Warning</th>
 		  	</tr>";
 		
 		foreach($soccer_divisions as $soccer_division):
 			echo '<tr>';
-				echo '<td>' . $soccer_division['soccer_group'] . '</td>';
+				echo '<td>'; if($soccer_division['soccer_group']==''): echo 'Unallocated'; else: echo $soccer_division['soccer_group']; endif; echo '</td>';
 				echo '<td>' . $soccer_division['div_name'] . '</td>';
 				echo '<td>' . $soccer_division['count'] . '</td>';
+				$sql = 'SELECT COUNT(DISTINCT(uid_division)) FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND soccer_group = "' . $soccer_division['soccer_group'] . '"';
+				$check = $con->query($sql)->fetchColumn();
+				
+				if($check==0):
+					echo '<td><strong>The ' . $soccer_division['div_name'] .  ' division has unallocated teams</strong></td>';
+				elseif($check>1):
+					echo '<td><strong>This group has teams from multiple divions</strong></td>';
+				else:
+					echo '<td>All good here</td>';
+				endif;
 			echo '</tr>';
 		endforeach;		
 
@@ -168,7 +228,7 @@
 		echo '</p>';
 
 		
-		$soccer_teams = $con->query('SELECT team_name, div_name, organisation, concat(mentor_first_name, " ", mentor_last_name) AS mentor_name, mentor_email, IF(ISNULL(soccer_group), "Unallocated", soccer_group) AS soccer_group FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%Soccer%" ORDER BY soccer_group ASC, div_disp_order ASC, team_name ASC');
+		$soccer_teams = $con->query('SELECT uid, team_name, div_name, organisation, concat(mentor_first_name, " ", mentor_last_name) AS mentor_name, mentor_email, soccer_group FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%Soccer%" ORDER BY div_disp_order ASC,  soccer_group ASC, team_name ASC');
 		echo '<p>';
 		echo "<table border='1'>
 		  <tr>
@@ -188,110 +248,83 @@
 				echo '<td>' . $soccer_team['organisation'] . '</td>';
 				echo '<td>' . $soccer_team['mentor_name'] . '</td>';
 				echo '<td>' . $soccer_team['mentor_email'] . '</td>';
-				echo '<td>' . $soccer_team['soccer_group'] . '</td>';
-				echo '<td>Update All Allocations</td>';
+
+				//echo '<td>'; if($soccer_team['soccer_group']==''): echo '<strong>Unallocated</strong>'; else: echo $soccer_team['soccer_group']; endif; echo '</td>';
+				echo '<td><input type="number" step="1" size="2" name="realloc_array[' . $soccer_team['uid'] . ']" min="1" max="99" value="' . $soccer_team['soccer_group'] . '"></td>'; 			
+				echo '<td><button type="submit" name="submit" value="reallocate">Update All Reallocations</button></td>';
 			echo '</tr>';
 		endforeach;
 		
 		echo "</table>";
 		echo '</p>';
-		echo '</form>'; 
+		
+		echo '<p>';
+		echo '<td><button type="submit" name="submit" value="combinations">Show Combinations</button></td>';
+		echo '</p>';
+
+		echo '</form>';
+		
+		if($action == 'update'):
+			if($_POST['submit'] == 'combinations'):		
+				echo '<p>';
+				echo "<table border='1'>
+				  <tr>
+					  <th>Group</th>
+					  <th>Division</th>
+					  <th>Team Name A</th>
+					  <th>Organisation A</th>
+					  <th>Team Name B</th>
+					  <th>Organisation B</th>
+				  </tr>";
+
+				$sql = 'SELECT soccer_group FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '" AND div_name LIKE "%SOCCER%" GROUP BY soccer_group ORDER BY div_disp_order ASC, soccer_group ASC';
+				$soccer_groups = $con->query($sql);
+
+				foreach($soccer_groups as $soccer_group):
+					$sql = 'SELECT uid from v_team WHERE soccer_group = "' . $soccer_group['soccer_group'] . '" AND uid_comp_name = "' . $uid_comp_name . '"';
+					$teams_in_group = $con->query($sql);
+					//print_r($teams_in_group);
+					$t = array();
+					foreach($teams_in_group as $team):
+						array_push($t, $team['uid']);
+					endforeach;
+					
+					//adapted from https://stackoverflow.com/questions/19991710/creating-unique-array-pairs-in-php
+					$n = $teams_in_group->rowCount();
+					$r_temp = $t;
+					$r_result = array();
+					foreach($t as $r):
+						$i = 0;
+						while($i < $n-1):
+							array_push($r_result, array($r_temp[0],$r_temp[$i+1]));
+							$i++;
+						endwhile;
+						$n--;
+						array_shift($r_temp); //Remove the first element since all the pairs are used
+					endforeach;
+					//end of adapted code
+				
+					foreach($r_result as $pair):
+						$team_a_details = $con->query('SELECT team_name, organisation, div_name FROM v_team WHERE uid = "' . $pair[0] . '"')->fetch();
+						$team_b_details = $con->query('SELECT team_name, organisation FROM v_team WHERE uid = "' . $pair[1] . '"')->fetch();
+						echo '<tr>';
+							echo '<td>' . $soccer_group['soccer_group'] . '</td>';
+							echo '<td>' . $team_a_details['div_name'] . '</td>';
+							echo '<td>' . $team_a_details['team_name'] . '</td>';
+							echo '<td>' . $team_a_details['organisation'] . '</td>';
+							echo '<td>' . $team_b_details['team_name'] . '</td>';
+							echo '<td>' . $team_b_details['organisation'] . '</td>';
+						echo '</tr>';
+					endforeach;
+				endforeach;
+
+				echo "</table>";
+				echo '</p>';
+			endif;
+		endif;
 	CEWritePageEnd();
  	endif;
 
-
-
-
-	/*
-
-	//then show form
-    $formname = 'Update Payment Information';
-    $formaction = '/payment-records/';
-    echo '<form name="'. $formname . '" action="' . $formaction . '" method="post">';
-    CEWriteFormAction('update');
-    CEWriteFormFieldHidden('uid_comp_name', $uid_comp_name);
-
-	$comp_name = $con->query('SELECT concat(year, " - ", state, " - ", comp_name) AS comp_name FROM v_comp_name WHERE uid_comp_name = "' . $uid_comp_name . '"')->fetchColumn();
-    $fee = $con->query('SELECT entry_fee FROM comp_name WHERE uid = "' . $uid_comp_name . '"')->fetchColumn();
-    $total_teams = $con->query('SELECT count(uid) AS count_teams FROM v_team WHERE uid_comp_name = "' . $uid_comp_name . '"')->fetchColumn();
-    
-    $total_received = $con->query('SELECT sum(pmt_amount) FROM v_invoice_payment WHERE uid_comp_name = "' . $uid_comp_name . '"')->fetchColumn();
-    $total_due = $total_teams * $fee;
-    $total_owing = $total_due - $total_received;
-
-    echo 'Displaying payment information for ' . $comp_name . '<br/>';
-    echo 'Number of Teams: ' . $total_teams . '<br/>';
-    echo 'Total Amount Due: ' . number_format($total_due, 2) . '<br/>';
-    echo 'Total Amount Paid: ' . number_format($total_received, 2) . '<br/>'; 
-    echo 'Total Amount Unpaid: ' . number_format($total_owing, 2) . '<br/><br/>';
-	echo '  <input type="submit" value="Record Payments Entered">';
-    echo '<br/>';echo '<br/>';
-    //get fee per team for comp
-
-
-    echo "<table border='1'>
-	  <tr>
-		  <th>Organisation</th>
-		  <th>Name</th>
-		  <th>Email</th>
-		  <th>Qty Teams</th>
-		  <th>Amount Due</th>
-		  <th>Invoice Num</th>
-		  <th>Amount Paid</th>
-		  <th>Check</th>
-		  <th>Notes</th>
-		  <th>TL</th>
-	  </tr>";
-      $sql = 'SELECT 
-	  		   uid_mentor_team,
-	    	   organisation, 
-	           first_name, 
-			   last_name, 
-			   email, 
-			   pmt_notes, 
-			   pmt_amount, 
-			   IF(ISNULL(invoice_number), "Unviewed", invoice_number) as invoice,
-			   pmt_ok
-			 FROM 
-			   v_invoice_payment 
-			 WHERE 
-			   uid_comp_name = "' . $uid_comp_name . '" 
-			 ORDER BY
-			   organisation ASC,
-			   last_name ASC,
-			   first_name ASC';
-      foreach($con->query($sql) as $row)
-      	{
-			$num_teams = $con->query('SELECT COUNT(uid) AS num_teams FROM team WHERE uid_mentor_team ="' . $row['uid_mentor_team'] . '"')->fetchColumn();
-			
-			if($num_teams<1):
-				continue;
-			endif;
-			
-			$amt_due = $fee * $num_teams;
-			
-			echo '<tr>';
-				echo '<td>' . htmlspecialchars($row['organisation']) . '</td>';
-				echo '<td>' . htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) . '</td>';
-				echo '<td>' . htmlspecialchars($row['email']) . '</td>';  
-				echo '<td>' . htmlspecialchars($num_teams) . '</td>';
-				echo '<td>' . number_format(htmlspecialchars($amt_due), 2) . '</td>';
-				echo '<td>' . htmlspecialchars($row['invoice']) . '</td>';
-				echo '<td><input type="number" step="0.01" size="9" name="' . $row['uid_mentor_team'] . '[pmt_amount]" min="0" max="99999" value="' . $row['pmt_amount'] . '"></td>'; 
-   			    echo '<td><input type="checkbox" class="smallcheckbox" name="' . $row['uid_mentor_team'] . '[pmt_ok]"'; if (ceIntToBool($row['pmt_ok'])){echo ' checked="checked" ';} echo '></td>';
-				//echo '<td>' . CEWriteFormFieldCheckbox($row['uid_mentor_team'] . ['pmt_ok'] , '', ceIntToBool($row['pmt_ok']));
-				echo '<td><input type="text" size="40" name="' . $row['uid_mentor_team'] . '[pmt_notes]" value="' . $row['pmt_notes'] . '"></td>';
-				echo'<td>'; 
-					if($row['pmt_ok']==1): 
-						echo '<span style="color: green">Paid</span>'; 
-					else: 
-						echo '<span style="color: red">Unpaid</span>'; 
-					endif;
-				echo '</td>';
-			echo "</tr>";
-	    }
-    echo "</table>";  
-*/
 ?>
 
 
