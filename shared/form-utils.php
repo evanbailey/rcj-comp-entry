@@ -17,7 +17,23 @@
     echo '</html>';
     
   }
+
+function writePageFooter()
+  {
+    echo '<p></p><hr>
+			  <p class="indentsmall">
+				<a href="http://www.google.com.au" target="_blank">Click here to view the Terms of Use and Privacy Policy.</a>
+			  </p>
+			<hr>
+			  <p class="indentsmall">
+			  	<a href="http://choosealicense.com/licenses/gpl-3.0/" target="_default">
+			  	Free, open source</a> online competition entry system by 
+			  <a href="http://www.clubengineer.org/robocup.html" target="_default">Club Engineer</a>.
+			  You can download the source 
+			  <a href="http://www.clubengineer.org/downloads/competition-entry-software" target="_default"> here</a>.<hr>';          
+  }
   
+  /* old one with sponsors logos - easier to remove than maintain
   function writePageFooter()
   {
     echo '<p></p><hr>
@@ -33,7 +49,8 @@
           Free, open source</a> online competition entry system by 
           <a href="http://www.clubengineer.org/robocup.html" target="_default">Club Engineer</a>.
           You can download the source 
-          <a href="http://www.clubengineer.org/downloads/competition-entry-software" target="_default"> here</a>.</p><hr>';          
+          <a href="http://www.clubengineer.org/downloads/competition-entry-software" target="_default"> here</a>. 
+		  <a href="http://www.google.com.au" target="_blank">Click here to view the Terms of Use and Privacy Policy.</a></p><hr>';          
   }
-  
+  */
 ?>
