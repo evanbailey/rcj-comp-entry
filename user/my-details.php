@@ -22,6 +22,11 @@
     CEWriteFormFieldCheckbox('share_with_sponsor', 'Can we share your details with our sponsors and supporters?', $user->share_with_sponsor);
     echo '<small><a href="javascript:alert(' . getMessage('share_with_sponsor') . ')">Tell me more about this...</a></small>';
     echo '</fieldset><p>';
+    echo '<small><a href="javascript:alert(' . getMessage('share_with_sponsor') . ')">Tell me more about this...</a></small><br/><br/>';
+	echo 'By ticking this box, I confirm that I have read and agree to abide by the Terms of Use and Privacy Policy of this website, which are linked to in the footer below'; CEWriteFormFieldToUPrivacyCheckBox();
+	echo '<br/><br/>I understand I must be in receipt of signed Data Release Content forms prior to registering students for events'; CEWriteFormFieldToUPrivacyCheckBox();
+	echo '<br/><br/>I understand I must submit signed Data Relase Consent and Media Release Deed forms and a signed Mentor Declaration on the day for all registered students'; CEWriteFormFieldToUPrivacyCheckBox();
+	echo '</fieldset><p>';
     ceWriteSaveAndCancelButtons('/'); 
     echo '<br><fieldset><legend>Optional information</legend>';
     writeAddressHTML($user);
@@ -30,7 +35,9 @@
 	writeHTMLRCJAMembership($user);
  
     // To Do: Go back to the previous page, not the main menu
+	 
     CEWriteFormEnd('/');
+	writePageFooter(); 
     CEWritePageEnd();
   }
 
@@ -62,6 +69,7 @@
  try
  {
     session_start();
+	$con->beginTransaction(); 
     $action             = postFieldDefault('action');
     $user              = new rcjaUser();
     $user->uid                = $_SESSION['uid_logged_on_user'];
@@ -123,6 +131,10 @@
 			 	   '    assign_proxy	   = :assign_proxy      	' . 
 				   'where uid = :uid',
              $user);
+	   //udpate latest login time in user table
+	   $sql = 'UPDATE user SET last_login = now() WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"';
+	   $con->query($sql);
+	   $con->commit();  
       }
       else
       {
@@ -136,6 +148,7 @@
   }    
   catch (Exception $e)
   {
+	$con->rollback();  
     CEHandleException($e, '/sys-admin/user');
   }  
 ?>

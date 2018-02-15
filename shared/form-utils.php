@@ -22,7 +22,7 @@ function writePageFooter()
   {
     echo '<p></p><hr>
 			  <p class="indentsmall">
-				<a href="http://www.google.com.au" target="_blank">Click here to view the Terms of Use and Privacy Policy.</a>
+				<a href="https://enter.rcjonline.org.au/touprivacy.php" target="_blank">Click here to view the Terms of Use and Privacy Policy.</a>
 			  </p>
 			<hr>
 			  <p class="indentsmall">

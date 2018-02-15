@@ -92,10 +92,6 @@
 	     	$update = 1;
 	     endif;
 	   
-		 //udpate latest login time in user table
-		 $sql = 'UPDATE user SET last_login = now() WHERE uid = "' . $_SESSION['uid_logged_on_user'] . '"';
-		 $con->query($sql);
-	   
 	     //redirect for force update
 	     if($update == 1):
 	     	header("Location: user/my-details.php?message=1");

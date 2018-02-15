@@ -91,6 +91,11 @@
          <input type="text" name="nu_mobile_num" id="nu_mobile_num" maxlength="20" value="' . $mobile_num . '" class="textbox"></p>
       <p></p>
 	  <p>By creating an account, you agree to sign up to regional, state and national email newsletters that are relevant, to me, and to share my name and email address with RoboCup Junior Australia regional, state and national supporters and sponsors. You can choose to opt out of these on the page displayed following account creation.</p> 
+	  <p>';
+	  echo 'By ticking this box, I confirm that I have read and agree to abide by the Terms of Use and Privacy Policy of this website, which are linked to in the footer below'; CEWriteFormFieldToUPrivacyCheckBox();
+	  echo '<br/><br/>I understand I must be in receipt of signed Data Release Content forms prior to registering students for events'; CEWriteFormFieldToUPrivacyCheckBox();
+	  echo '<br/><br/>I understand I must submit signed Data Relase Consent and Media Release Deed forms and a signed Mentor Declaration on the day for all registered students'; CEWriteFormFieldToUPrivacyCheckBox();
+	  echo '</p>
       <p><input type="submit" value="Create my account"></p> 
       </fieldset>                                   
       </form>';
